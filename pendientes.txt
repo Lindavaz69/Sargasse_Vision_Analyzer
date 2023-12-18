@@ -1,0 +1,1 @@
+Globalizar valores de factor_x y factor_y  en frmImagen.py
