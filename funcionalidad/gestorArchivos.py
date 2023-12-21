@@ -4,6 +4,7 @@ import shutil
 import json
 import tkinter as tk
 import re
+import shutil
 
 from osgeo import gdal
 from tkinter import filedialog
@@ -105,7 +106,9 @@ class GestorArchivos:
                     self.nombreImgFrame2 =f'{nombre}{ext}'
                     shutil.copy(filename, self.rutaImgProcesada_img)
                     return filename
-            
+    def nuevoProyecto(self):
+        exit
+
     def abrirProyecto(self):
         filename = filedialog.askdirectory()
         if filename:
@@ -118,20 +121,37 @@ class GestorArchivos:
             self.nombreImgFrame1 = datos['nombreImgFrame1']
             self.nombreImgFrame2 = datos['nombreImgFrame2']
             self.tipoImgBruta = datos['tipoImgBruta']
-
+            self.areas = datos['areas']
             if not self.nomImg1 == '':
                 self.controller.frmImagen1.AbrirImagen()
             if not self.nombreImgFrame2 == '':
                 self.controller.frmImagen2.AbrirImagen()           
             self.abrirArchivo = False
+            for area in self.areas:
+                self.controller.cargarAreas(area[0], area[1], area[2])
         
     def guardar(self):
+        areas=[]
+        for area in self.controller.Areas:
+            puntos = area[3].get_xy()
+            xmin, ymin= round(puntos[0][0]),round(puntos[0][1])
+            xmax, ymax= round(puntos[2][0]),round(puntos[2][1])
+            areas.append((area[2].nombre,[(xmin,ymin),(xmax,ymax)],area[4]))
         datos={'nombreImgArchivo1': self.nomImg1,
                'nombreImgFrame1':self.nombreImgFrame1,
                'tipoImgBruta':self.tipoImgBruta,
-               'nombreImgFrame2':self.nombreImgFrame2}
+               'nombreImgFrame2':self.nombreImgFrame2,
+               'areas':areas}
         with open(os.path.join(self.rutaProyecto,'datos.json'), 'w') as archivo_json:
             json.dump(datos, archivo_json)
+
+    def guardarComo(self):
+        exit
+    def borrarDatosCarpetaTemporal(self):
+        dir = os.path.join(os.path.expanduser("~"),".savia")
+        if os.path.exists(dir):
+            for f in os.listdir(dir):
+                shutil.rmtree(os.path.join(dir, f))
 
 #Menu colores#
     def cargarColoresAreas(self):
