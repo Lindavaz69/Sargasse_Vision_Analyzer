@@ -5,6 +5,8 @@ import json
 import tkinter as tk
 import re
 import shutil
+import sys
+import subprocess
 
 from osgeo import gdal
 from tkinter import filedialog
@@ -107,7 +109,8 @@ class GestorArchivos:
                     shutil.copy(filename, self.rutaImgProcesada_img)
                     return filename
     def nuevoProyecto(self):
-        exit
+        subprocess.run(["python", sys.argv[0]])
+
 
     def abrirProyecto(self):
         filename = filedialog.askdirectory()
@@ -146,7 +149,28 @@ class GestorArchivos:
             json.dump(datos, archivo_json)
 
     def guardarComo(self):
-        exit
+        filtros=(("Nombre directorio", ("")),)
+        filename = filedialog.asksaveasfilename(filetypes=filtros)
+        if filename:
+            self.rutaProyecto = filename
+            if not os.path.exists(self.rutaProyecto):
+                os.makedirs(self.rutaProyecto)
+            #Image Bruta
+            self.rutaImgBruta = os.path.join(self.rutaProyecto,"imgBruta")
+            os.makedirs(self.rutaImgBruta)
+            shutil.copytree(self.rutaImgBruta_bands,os.path.join(self.rutaImgBruta,"bands"))
+            shutil.copytree(self.rutaImgBruta_img,os.path.join(self.rutaImgBruta,"img"))
+            shutil.copytree(self.rutaImgBruta_temp,os.path.join(self.rutaImgBruta,"temp"))
+            self.rutaImgBruta_bands = os.path.join(self.rutaImgBruta,"bands")
+            self.rutaImgBruta_img = os.path.join(self.rutaImgBruta,"img")
+            self.rutaImgBruta_temp = os.path.join(self.rutaImgBruta,"temp")
+            #Image Procesada
+            self.rutaImgProcesada = os.path.join(self.rutaProyecto,"imgProcesada")
+            os.makedirs(self.rutaImgProcesada)
+            shutil.copytree(self.rutaImgProcesada_img,os.path.join(self.rutaImgProcesada,"img"))
+            self.rutaImgProcesada_img = os.path.join(self.rutaImgProcesada,"img")
+            self.guardar()
+
     def borrarDatosCarpetaTemporal(self):
         dir = os.path.join(os.path.expanduser("~"),".savia")
         if os.path.exists(dir):
